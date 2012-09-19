@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Powerlabor</string>
+    <string name="welcome">Добро пожаловать в мир Powerlabor!</string>  
+    <string name="hello">Труд напрасным не бывает!</string>
+
+	<string name="button_add_record">Добавить запись</string>
+	<string name="button_pauseall">Приостановить всё</string>
+	<string name="button_delete_record">Удалить запись</string>
+	
+	<string name="tasks_caption">Задачи:</string>
+	<string name="task_conference">Совещание</string>
+	<string name="task_discussion">Дискуссия</string>
+	<string name="task_counsel">Консилиум</string>
+	
+	<string name="menu_help">Помощь</string>
+	<string name="menu_clear_db">Очистить все задачи</string>
+	<string name="menu_options">Настройки</string>
+	<string name="menu_about">О программе</string>
+	<string name="menu_exit">Выход</string>
+	
+	<string name="manifest_input_task">Введите имя новой задачи</string>
+	
+</resources>
