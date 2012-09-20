@@ -20,5 +20,6 @@
 	<string name="menu_exit">Выход</string>
 	
 	<string name="manifest_input_task">Введите имя новой задачи</string>
+	<string name="input_task_title">Новая задача</string>
 	
 </resources>
