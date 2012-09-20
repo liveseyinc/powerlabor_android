@@ -2,6 +2,9 @@ package org.powerlabor.main;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,23 +21,26 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Главное Activity
- * связанный layout: main.xml
+ * пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Activity
+ * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ layout: main.xml
  */
 public class PowerlaborActivity extends Activity {
 	
-	// Логи
+	// пїЅпїЅпїЅпїЅ
     // Set to true to enable verbose logging.
     final static boolean LOGV_ENABLED = true; //false;
     // Set to true to enable extra debug logging.
     final static boolean LOGD_ENABLED = true;
 	private final static String LOGTAG = "myLog_PowerlaborActivity";
+	private final static int DLG_INPUT_NAME_ACTIVITY = 0; 
+	private final static int DLG_INPUT_NAME_VIEW_ID = 0;
 
 	
 	ListItemAdapter TaskItemAdapter;
@@ -46,7 +52,7 @@ public class PowerlaborActivity extends Activity {
 	SimpleCursorAdapter scAdapter;
 	Cursor cursor;
 
-	// SharedPreferences для работы с файлом настроек
+	// SharedPreferences пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	SharedPreferences sp;
 
 
@@ -59,61 +65,61 @@ public class PowerlaborActivity extends Activity {
         if (LOGV_ENABLED) Log.v(LOGTAG, "PowerlaborActivity.onCreate: this=" + this);
         if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onCreate()");
    
-	    // получаем SharedPreferences, которое работает с файлом настроек
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ SharedPreferences, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    sp = PreferenceManager.getDefaultSharedPreferences(this);
-	    // полная очистка настроек
+	    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    // sp.edit().clear().commit();
         
         
-	    // открываем подключение к БД
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ
 	    inv_db = new DB(this);
 	    inv_db.open();
 
-	    // получаем курсор
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	    cursor = inv_db.getAllData();
 	    startManagingCursor(cursor);
 	    
-	    // формируем столбцы сопоставления
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    String[] from = new String[] { DB.COLUMN_PLAYING, DB.COLUMN_TASK };
 	    int[] to = new int[] { R.id.ivPlayPause, R.id.tvTask};
     
-	    // создаем адаптер
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    TaskItemAdapter = new ListItemAdapter(this, R.layout.taskitem, cursor, from, to);
 
-        // настраиваем список
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         ListView lvData = (ListView) findViewById(R.id.lvData);
         lvData.setAdapter(TaskItemAdapter);
 	    
-	    // добавляем контекстное меню к списку
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	    registerForContextMenu(lvData);
    
-	    // Событие OnItemClick на списке lvData
-	    // TODO: Вынести в отдельную функцию обработчик нажатий на строках списка
+	    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ OnItemClick пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ lvData
+	    // TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	    lvData.setOnItemClickListener(new OnItemClickListener() {
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 	            
 	        	if (LOGD_ENABLED) Log.d(LOGTAG, "itemClick: position = " + position + ", id = " + id);
         	
-	            // перейдём к текущей записи
+	            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	    		cursor.moveToPosition(position);
 	    		
 	    		
-//    			// вытащим хронометр
+//    			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     			final Chronometer mChronometer = (Chronometer) view.findViewById(R.id.chronometer);
 
-	    		// вытащим текущее значение COLUMN_PLAYING (признак того, что текущая строка в работе, отсчитывется время, хронометр крутится)
+	    		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ COLUMN_PLAYING (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 	    		int plaing_value = cursor.getInt(cursor.getColumnIndex(DB.COLUMN_PLAYING));
 	    		boolean	b_playing = false;
 	    		
 	    		if (plaing_value == 0) {
-	    			// поменяем картинку
+	    			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    			b_playing = true;
 	    			
-	    			// добавим запись в t_step и начнём отсчёт
-	    			inv_db.addRec2Steps(id);
+	    			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ t_step пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	    			inv_db.addRec2Steps((long) position);
 	    			
 
-	    			// TODO: Самое главное!!! Сделать, чтоб для каждой строки запускался свой независимый хронометр (видимо надо в разных потоках это делать). Сейчас хронометр как бы единый, т.е. нажимаешь старт в одной строке, начинают работать хронометры во ВСЕХ строчках.
+	    			// TODO: пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!!! пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ). пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ.пїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 	    			mChronometer.start(); //(SystemClock.elapsedRealtime());
 	    	        if (LOGD_ENABLED) Log.d(LOGTAG, "mChronometer.start() Position - " + position);
 	    	
@@ -123,24 +129,24 @@ public class PowerlaborActivity extends Activity {
 
 	    		}
 	    		else if (plaing_value == 1) {
-	    			// поменяем картинку
+	    			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    			b_playing = false;
-	    			// остановим хронометр
+	    			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    			mChronometer.stop(); //(SystemClock.elapsedRealtime());
 	    	        if (LOGD_ENABLED) Log.d(LOGTAG, "mChronometer.stop() Position - " + position);
 	    	
 	    		}
 	    		
-	    		// запишем в базу текущий статус строки
+	    		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	    		inv_db.changeRec (id, DB.COLUMN_PLAYING, b_playing);
 	    		
-	    		// обновляем курсор
+	    		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	    		cursor.requery();
 	    		
 	        }
 	    });
 
-	    // TODO: Вынести в отдельную функцию
+	    // TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	    // OnItemSelected, onNothingSelected
 	    lvData.setOnItemSelectedListener(new OnItemSelectedListener() {
 	        public void onItemSelected(AdapterView<?> parent, View view,
@@ -156,7 +162,7 @@ public class PowerlaborActivity extends Activity {
 	
 	
 	protected void onResume() {
-//// Пример работы с выставленными настройками.
+//// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 //		Boolean notif = sp.getBoolean("notif", false);
 //	    String address = sp.getString("address", "");
 //	    String text = "Notifications are "
@@ -171,43 +177,113 @@ public class PowerlaborActivity extends Activity {
 
 	
 
-	// вернулись после ввода имени задачи и продолжаем работу уже здесь
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onActivityResult()");
 		if (data == null) {return;}
 		if (data.getStringExtra("name").length()>0) {
 			inv_db.addRec(data.getStringExtra("name"));
-		    // обновляем курсор
+		    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		    cursor.requery();
 		}
 	}
 
-	// Единый обработчик нажатий кнопок
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	public void onButtonClick(View v) {
 		if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onButtonClick()");
 		
-        // выберем кнопочку
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         switch(v.getId()){
 		case R.id.button_addrow:
-		    // добавляем запись
-			// запросим название задачи
-		    Intent intent = new Intent(this, InputDataActivity.class);
-		    startActivityForResult(intent, 1);
-		    // дальнейшая обработка происходит в onActivityResult
+			//show dialog for obtain activity name
+			showDialog(DLG_INPUT_NAME_ACTIVITY);
 			break;
 		}
 	}
+	
+	/*
+	 * This method would be called on Activity.showDialog()
+	 * 
+	 */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DLG_INPUT_NAME_ACTIVITY:
+                return createInputNameDialog();
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * If a dialog has already been created,
+     * this is called to reset the dialog
+     * before showing it a 2nd time. Optional.
+     */
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+ 
+        switch (id) {
+            case DLG_INPUT_NAME_ACTIVITY:
+                // Clear the input box.
+                EditText text = (EditText) dialog.findViewById( DLG_INPUT_NAME_VIEW_ID );
+                text.setText("");
+                break;
+        }
+    }
+    
+    /**
+     * Creating and setting Dialog object
+     * @return dialog
+     */
+    private Dialog createInputNameDialog() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle( R.string.input_task_title );
+        builder.setMessage( R.string.manifest_input_task );
+     
+         // Use an EditText view to get user input.
+        final EditText input = new EditText(this);
+        input.setId(DLG_INPUT_NAME_VIEW_ID);
+        //one text string only
+        input.setSingleLine( true );
+        builder.setView(input);
+         
+         //set button "Ok"
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+ 
+            @Override
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String value = input.getText().toString();
+                if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onActivityResult()");
+        		if ( value.length()>0) {
+        			inv_db.addRec( value );
+        		    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        		    cursor.requery();
+        		}
+                return;
+            }
+        });
+        //set button "Cancel"
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+ 
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                return;
+            }
+        });
+ 
+        return builder.create();
+    }
 
-
-    // назначим меню
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 		getMenuInflater().inflate(R.menu.mymenu, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	// обработчик меню
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onOptionsItemSelected()");
@@ -215,16 +291,16 @@ public class PowerlaborActivity extends Activity {
 		switch(item.getItemId()){
 		
 		case R.id.menu_clear_db:
-			//выход из приложения
+			//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			inv_db.clearTable("t_tasks");
-		    // обновляем курсор
+		    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		    cursor.requery();
 			break;
 		case R.id.menu_options:
 		    item.setIntent(new Intent(this, PrefActivity.class));
 			break;
 		case R.id.menu_exit:
-			//выход из приложения
+			//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			finish();
 			break;
 		}
@@ -233,7 +309,7 @@ public class PowerlaborActivity extends Activity {
 	}
 
 	
-    // назначим контекстное меню
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 	    super.onCreateContextMenu(menu, v, menuInfo);
 	    
@@ -248,15 +324,15 @@ public class PowerlaborActivity extends Activity {
 	}
 	
 	
-	// обработчик контекстного меню 
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ 
 	public boolean onContextItemSelected(MenuItem item) {
         if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onContextItemSelected()");
 	    if (item.getItemId() == CM_DELETE_ID) {
-	      // получаем из пункта контекстного меню данные по пункту списка 
+	      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
 	      AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) item.getMenuInfo();
-	      // извлекаем id записи и удаляем соответствующую запись в БД
+	      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ id пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ
 	      inv_db.delRec(acmi.id);
-	      // обновляем курсор
+	      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	      cursor.requery();
 	      return true;
 	    }
@@ -264,11 +340,11 @@ public class PowerlaborActivity extends Activity {
 	}
 
 	
-	// при выходе гасите свет
+	// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	protected void onDestroy() {
 		super.onDestroy();
         if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onDestroy()");
-		// закрываем подключение при выходе
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		inv_db.close();
 	}
 }

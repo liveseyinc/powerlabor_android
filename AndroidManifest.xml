@@ -18,7 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InputDataActivity" android:theme="@android:style/Theme.Dialog" android:label="@string/manifest_input_task"></activity>
         <activity android:name="PrefActivity"></activity>
 	</application>
 
