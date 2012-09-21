@@ -109,6 +109,7 @@ public class PowerlaborActivity extends Activity {
 	    			// поменяем картинку
 	    			b_playing = true;
 	    			
+	    			
 	    			// добавим запись в t_step и начнём отсчёт
 	    			inv_db.addRec2Steps(id);
 	    			
