@@ -2,6 +2,9 @@ package org.powerlabor.main;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,6 +21,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -35,6 +39,8 @@ public class PowerlaborActivity extends Activity {
     // Set to true to enable extra debug logging.
     final static boolean LOGD_ENABLED = true;
 	private final static String LOGTAG = "myLog_PowerlaborActivity";
+	private final static int DLG_INPUT_NAME_ACTIVITY = 0; 
+	private final static int DLG_INPUT_NAME_VIEW_ID = 0;
 
 	
 	ListItemAdapter TaskItemAdapter;
@@ -109,9 +115,9 @@ public class PowerlaborActivity extends Activity {
 	    			// поменяем картинку
 	    			b_playing = true;
 	    			
-	    			
 	    			// добавим запись в t_step и начнём отсчёт
 	    			inv_db.addRec2Steps(id);
+	    			//inv_db.addRec2Steps((long) position);
 	    			
 
 	    			// TODO: Самое главное!!! Сделать, чтоб для каждой строки запускался свой независимый хронометр (видимо надо в разных потоках это делать). Сейчас хронометр как бы единый, т.е. нажимаешь старт в одной строке, начинают работать хронометры во ВСЕХ строчках.
@@ -191,15 +197,86 @@ public class PowerlaborActivity extends Activity {
         // выберем кнопочку
         switch(v.getId()){
 		case R.id.button_addrow:
-		    // добавляем запись
-			// запросим название задачи
-		    Intent intent = new Intent(this, InputDataActivity.class);
-		    startActivityForResult(intent, 1);
-		    // дальнейшая обработка происходит в onActivityResult
+			// добавляем запись
+			//show dialog for obtain activity name
+			showDialog(DLG_INPUT_NAME_ACTIVITY);
 			break;
 		}
 	}
-
+	
+	/*
+	 * This method would be called on Activity.showDialog()
+	 * 
+	 */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DLG_INPUT_NAME_ACTIVITY:
+                return createInputNameDialog();
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * If a dialog has already been created,
+     * this is called to reset the dialog
+     * before showing it a 2nd time. Optional.
+     */
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+ 
+        switch (id) {
+            case DLG_INPUT_NAME_ACTIVITY:
+                // Clear the input box.
+                EditText text = (EditText) dialog.findViewById( DLG_INPUT_NAME_VIEW_ID );
+                text.setText("");
+                break;
+        }
+    }
+    
+    /**
+     * Creating and setting Dialog object
+     * @return dialog
+     */
+    private Dialog createInputNameDialog() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle( R.string.input_task_title );
+        builder.setMessage( R.string.manifest_input_task );
+     
+         // Use an EditText view to get user input.
+        final EditText input = new EditText(this);
+        input.setId(DLG_INPUT_NAME_VIEW_ID);
+        //one text string only
+        input.setSingleLine( true );
+        builder.setView(input);
+         
+         //set button "Ok"
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+ 
+            @Override
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String value = input.getText().toString();
+                if (LOGD_ENABLED) Log.d(LOGTAG, "PowerlaborActivity.onActivityResult()");
+        		if ( value.length()>0) {
+        			inv_db.addRec( value );
+        		    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        		    cursor.requery();
+        		}
+                return;
+            }
+        });
+        //set button "Cancel"
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+ 
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                return;
+            }
+        });
+ 
+        return builder.create();
+    }
 
     // назначим меню
 	@Override

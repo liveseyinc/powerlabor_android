@@ -20,6 +20,6 @@
 	<string name="menu_exit">Exit</string>
 	
 	<string name="manifest_input_task">Input new task name</string>
-
+	<string name="input_task_title">New task</string>
 
 </resources>
